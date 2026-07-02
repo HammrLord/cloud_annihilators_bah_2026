@@ -1,0 +1,68 @@
+# Stage 2: Physics-guided Cloud Removal
+# PPE + MSKT (frozen) + AdaLN + ECRFormer → cloud-free output
+
+model:
+  name: psprnet
+  mskt_checkpoint: ./experiments/stage1_mskt/best.ckpt
+  freeze_mskt: true
+
+  ppe:
+    in_channels: 3         # Cloudy optical (G, R, NIR)
+    hidden_channels: 16
+    # Outputs: cloud_density [B,1], atmospheric_light A [B,3], transmission T [B,1,H,W]
+
+  ecrformer:
+    in_channels: 15        # 3 optical + 2 SAR + 3 R_init + 3 NDVI/NDWI/DVI + 2 physics + 2 DEM
+    out_channels: 3        # Cloud-free LISS-IV (G, R, NIR)
+    features_start: 48
+    num_blocks: [2, 3, 2]
+    num_refine: 4
+    bottleneck: tsa
+    cbam: "1ca2+1sa2"
+    drop_path_rate: 0.0
+
+  adaln:
+    cond_dim: 2            # [mean_transmission, cloud_density]
+
+data:
+  dataset: liss4
+  root: /data/LISS4
+  crop_size: 256
+  batch_size: 4
+  num_workers: 8
+  use_sar: true
+  use_dem: true
+  dem_root: /data/SRTM
+
+loss:
+  l1_weight: 1.0
+  ssim_weight: 0.5
+  ndvi_weight: 0.2
+  sam_global_weight: 0.1
+  physics_weight: 0.1
+
+training:
+  max_epoch: 30
+  lr: 1.0e-4
+  weight_decay: 0.01
+  optimizer: adamw
+  scheduler: cosine
+  precision: 16-mixed
+  gradient_clip: 0.5
+  gradient_accumulation_steps: 4
+  save_dir: ./experiments/stage2
+  early_stop_patience: 10
+  log_every_n_steps: 50
+
+  # Frozen/unfrozen components
+  frozen:
+    - mskt
+    - ecrformer_encoder_early   # encoder stages 0-1
+    - ecrformer_decoder_early   # decoder stage 0
+  unfrozen:
+    - ppe
+    - adaln
+    - ecrformer_encoder_late    # encoder stage 2
+    - ecrformer_decoder_late    # decoder stages 1-2
+    - refine_head
+    - residual_head

@@ -1,0 +1,16 @@
+# Inference Configuration
+
+model:
+  checkpoint: ./experiments/stage2/best.ckpt
+  variant: base  # base | light
+
+inference:
+  input_dir: ./data/test_input
+  output_dir: ./data/test_output
+  crop_size: 256
+  overlap: 64            # Overlap for tiling
+  batch_size: 1
+  num_workers: 4
+  save_format: tif       # tif | npz | png
+  compute_metrics: true
+  export_confidence: true

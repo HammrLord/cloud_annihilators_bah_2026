@@ -1,0 +1,43 @@
+# Stage 1: MSKT Pretraining on SEN12MS-CR
+# Reconstruct 13-band Sentinel-2 from LISS-IV (3 bands) + SAR (2 bands)
+
+model:
+  name: mskt
+  in_channels: 5          # 3 LISS-IV + 2 SAR
+  out_channels: 13        # Sentinel-2 bands
+  embed_dim: 64
+  num_heads: 8
+  num_encoder_layers: 6
+  num_decoder_layers: 6
+  mlp_ratio: 4.0
+  dropout: 0.1
+
+data:
+  dataset: sen12mscr
+  root: /data/SEN12MS-CR
+  split: [train, val]
+  train_ratio: 0.8
+  crop_size: 256
+  batch_size: 8
+  num_workers: 8
+  sar_bands: [0, 1]        # VV, VH
+  optical_bands: [2, 3, 7] # B3, B4, B8 (Green, Red, NIR - LISS-IV compatible)
+
+loss:
+  l1_weight: 1.0
+  ssim_weight: 0.5
+  sam_weight: 0.1
+
+training:
+  max_epoch: 100
+  lr: 2.0e-4
+  weight_decay: 0.01
+  optimizer: adamw
+  scheduler: cosine
+  warmup_epochs: 5
+  precision: 16-mixed
+  gradient_clip: 0.5
+  gradient_accumulation_steps: 4
+  save_dir: ./experiments/stage1_mskt
+  early_stop_patience: 10
+  log_every_n_steps: 50
