@@ -24,6 +24,36 @@ ISRO BAH 2026 — Delhi Technological University
 - **Modality Detection & Routing** — automatic sensor identification
 - **Downstream Geospatial Insights** — NDVI, change detection, vegetation monitoring
 - **Quality Assessment Dashboard** — confidence heatmaps, uncertainty visualization
+- **Generalizable Training Framework** — sensor-agnostic backbone, extensible beyond LISS-IV
+
+
+## UI/UX
+
+The frontend is built as a single interactive web app (React/Next.js + Leaflet.js) with three core views:
+
+### 1. Comparison Viewer
+- Side-by-side toggle between **Cloudy** and **Reconstructed** imagery on an interactive map canvas
+- **Layer Control panel** to switch between Optical (raw), Cloud-Free (reconstructed), SAR (VV/VH), and DEM layers
+- Derived-product overlays: **NDVI** and **Confidence Map**, toggled independently
+- Live reconstruction-quality badge (e.g. HIGH) with a short vegetation-health summary generated from NDVI stats
+
+### 2. Core Intelligence Hub
+- **Model Recommendation Engine** — auto-selects the best pipeline (e.g. Cloud Removal, Change Detection) based on scene conditions, with a confidence score shown per recommendation
+- **Cloud Density** readout (% cover) with a quick preview thumbnail
+- **Data Availability** tracker for Optical / SAR / DEM sources (online / syncing status)
+- **Recent Processing History** table — run ID, pipeline, mode (Quality/Speed), status, timestamp
+
+### 3. Analytics Dashboard
+- **Spectral signature plots** and **pixel histograms** (Plotly/D3.js) comparing cloudy vs. reconstructed bands
+- **NDVI distribution** and **elevation profile (DEM)** charts
+- **Reconstruction Confidence** heatmap overlay with a High/Mid/Low legend
+- **Key statistics** panel: total cloud coverage, mean NDVI, water-body area, etc.
+- **One-click export**: GeoTIFF raster, CSV statistics, PDF summary report (ReportLab)
+
+<img height="250" alt="image" src="https://github.com/user-attachments/assets/c4492b27-1b74-47a3-9584-cd1561b3828b" />
+<img height="250" alt="image" src="https://github.com/user-attachments/assets/e726d127-6352-4f4d-97c0-772712432516" />
+<img height="250" alt="image" src="https://github.com/user-attachments/assets/79874b27-91a5-4c03-baf4-e6137ea30cba" />
+
 
 ## Results
 
